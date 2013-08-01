@@ -1,0 +1,22 @@
+#!/bin/sh
+
+# Installation directory
+base_dir=`realpath "$0"/../../`
+#echo base_dir=$base_dir
+
+# Libraries dir
+lib_dir="$base_dir/lib"
+
+CLASSPATH=""
+
+#add jars in lib directory to classpath
+for file in "$lib_dir"/*.jar;
+do
+        CLASSPATH="$CLASSPATH:$file"
+done
+
+JAIN_SIP_API_LIB=`ls $lib_dir/jain-sip-api*.jar`
+OPENJSIP_REMOTE_LIB=`ls $lib_dir/openjsip-remote*.jar`
+
+java -cp $CLASSPATH openjsip.CmdClient $* 
+

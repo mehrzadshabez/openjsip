@@ -1,0 +1,24 @@
+#!/bin/sh
+
+# Installation directory
+base_dir=`realpath "$0"/../../../../`
+#echo base_dir=$base_dir
+
+# Output .rrd file
+out=$base_dir/extra/stats/rrd/location-service-5min.rrd
+#echo "Output filename: $out"
+
+rrdtool create $out 		    \
+--step 300 			    \
+DS:nBindings:GAUGE:600:U:U 	    \
+DS:vm_freememory:GAUGE:600:U:U 	    \
+DS:vm_maxmemory:GAUGE:600:U:U  	    \
+DS:vm_totalmemory:GAUGE:600:U:U	    \
+RRA:AVERAGE:0.5:1:288		    \
+RRA:AVERAGE:0.5:6:336               \
+RRA:AVERAGE:0.5:24:372              \
+RRA:AVERAGE:0.5:288:365             \
+RRA:MAX:0.5:1:1440		    \
+RRA:MAX:0.5:6:336                   \
+RRA:MAX:0.5:24:372                  \
+RRA:MAX:0.5:288:365            

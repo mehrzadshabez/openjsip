@@ -1,0 +1,10 @@
+openjsip
+openjsip.auth
+openjsip.locationservice
+openjsip.proxy
+openjsip.proxy.plugins
+openjsip.registrar
+openjsip.remote
+openjsip.remote.locationservice
+openjsip.remote.registrar
+openjsip.snmp

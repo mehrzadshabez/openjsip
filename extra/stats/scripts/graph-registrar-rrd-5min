@@ -1,0 +1,137 @@
+#!/bin/sh
+
+# Installation directory
+base_dir=`realpath "$0"/../../../../`
+#echo base_dir=$base_dir
+
+# Input file
+in=$base_dir/extra/stats/rrd/registrar-5min.rrd
+# Output file with registrar stats
+out_registrar=$base_dir/extra/stats/png/registrar.png
+# Output file with registrar Java VM stats
+out_vm=$base_dir/extra/stats/png/registrar-vm.png
+
+rrdtool graph $out_registrar		                \
+	 --title "Registrar stats"			\
+	 --vertical-label "per second"	        	\
+	 --alt-autoscale-max				\
+	 --lower-limit 0				\
+	 --base 1000					\
+	 --slope-mode					\
+							\
+	 DEF:ds0=$in:nResOK:AVERAGE			\
+	 DEF:ds1=$in:nReqRej:AVERAGE			\
+	 DEF:ds2=$in:nReqErrors:AVERAGE			\
+	 DEF:ds3=$in:nAuthFails:AVERAGE			\
+	 DEF:ds4=$in:nCancels:AVERAGE			\
+	 DEF:ds5=$in:nCCancels:AVERAGE			\
+	 DEF:ds6=$in:nQueries:AVERAGE			\
+	 DEF:ds7=$in:nUpdates:AVERAGE			\
+	 DEF:ds8=$in:nNotFound:AVERAGE			\
+	 DEF:ds9=$in:nIncReqs:AVERAGE			\
+							\
+	 VDEF:ds2max=ds2,MAXIMUM			\
+	 VDEF:ds2avg=ds2,AVERAGE			\
+	 VDEF:ds2cur=ds2,LAST				\
+   	 AREA:ds2#FF00FF:"Int errors\:    "		\
+	 GPRINT:ds2cur:"Cur\: %4.0lf\t"			\
+	 GPRINT:ds2avg:"Avg\: %4.0lf\t"			\
+	 GPRINT:ds2max:"Max\: %4.0lf\l"	 		\
+							\
+	 VDEF:ds8max=ds8,MAXIMUM			\
+	 VDEF:ds8avg=ds8,AVERAGE			\
+	 VDEF:ds8cur=ds8,LAST				\
+   	 AREA:ds8#CC0000:"Not found\:     ":STACK      	\
+	 GPRINT:ds8cur:"Cur\: %4.0lf\t"			\
+	 GPRINT:ds8avg:"Avg\: %4.0lf\t"			\
+	 GPRINT:ds8max:"Max\: %4.0lf\l"	 		\
+	 					   	\
+         VDEF:ds3max=ds3,MAXIMUM			\
+	 VDEF:ds3avg=ds3,AVERAGE			\
+	 VDEF:ds3cur=ds3,LAST				\
+   	 AREA:ds3#FF420E:"Auth fails\:    ":STACK      	\
+	 GPRINT:ds3cur:"Cur\: %4.0lf\t"			\
+	 GPRINT:ds3avg:"Avg\: %4.0lf\t"			\
+	 GPRINT:ds3max:"Max\: %4.0lf\l"	 		\
+							\
+	 VDEF:ds4max=ds4,MAXIMUM			\
+	 VDEF:ds4avg=ds4,AVERAGE			\
+	 VDEF:ds4cur=ds4,LAST				\
+   	 AREA:ds4#FFAE00:"Cancels\:       ":STACK	\
+	 GPRINT:ds4cur:"Cur\: %4.0lf\t"			\
+	 GPRINT:ds4avg:"Avg\: %4.0lf\t"			\
+	 GPRINT:ds4max:"Max\: %4.0lf\l"	 		\
+							\
+	 VDEF:ds5max=ds5,MAXIMUM			\
+	 VDEF:ds5avg=ds5,AVERAGE			\
+	 VDEF:ds5cur=ds5,LAST				\
+   	 AREA:ds5#FFFF00:"Cancels *\:     ":STACK 	\
+	 GPRINT:ds5cur:"Cur\: %4.0lf\t"			\
+	 GPRINT:ds5avg:"Avg\: %4.0lf\t"			\
+	 GPRINT:ds5max:"Max\: %4.0lf\l"	 		\
+							\
+	 VDEF:ds6max=ds6,MAXIMUM			\
+	 VDEF:ds6avg=ds6,AVERAGE			\
+	 VDEF:ds6cur=ds6,LAST				\
+   	 AREA:ds6#00B542:"Queries\:       ":STACK	\
+	 GPRINT:ds6cur:"Cur\: %4.0lf\t"			\
+	 GPRINT:ds6avg:"Avg\: %4.0lf\t"			\
+	 GPRINT:ds6max:"Max\: %4.0lf\l"	 		\
+							\
+	 VDEF:ds7max=ds7,MAXIMUM			\
+	 VDEF:ds7avg=ds7,AVERAGE			\
+	 VDEF:ds7cur=ds7,LAST				\
+   	 AREA:ds7#00FF00:"Updates\:       ":STACK  	\
+	 GPRINT:ds7cur:"Cur\: %4.0lf\t"			\
+	 GPRINT:ds7avg:"Avg\: %4.0lf\t"			\
+	 GPRINT:ds7max:"Max\: %4.0lf\l"	 		\
+							\
+	 VDEF:ds9max=ds9,MAXIMUM			\
+	 VDEF:ds9avg=ds9,AVERAGE			\
+	 VDEF:ds9cur=ds9,LAST				\
+   	 LINE1:ds9#000000:"Total\:         "  		\
+	 GPRINT:ds9cur:"Cur\: %4.0lf\t"			\
+	 GPRINT:ds9avg:"Avg\: %4.0lf\t"			\
+	 GPRINT:ds9max:"Max\: %4.0lf\l"	 		\
+							\
+
+rrdtool graph $out_vm                                   \
+         --title "Registrar Java VM memory stats"       \
+         --vertical-label "memory stats"                \
+         --alt-autoscale-max                            \
+         --lower-limit 0                                \
+         --base 1024                                    \
+         --slope-mode                                   \
+							\
+	 DEF:ds0=$in:vm_freememory:AVERAGE           	\
+         DEF:ds1=$in:vm_maxmemory:AVERAGE            	\
+         DEF:ds2=$in:vm_totalmemory:AVERAGE          	\
+							\
+	 VDEF:ds2max=ds2,MAXIMUM			\
+	 VDEF:ds2avg=ds2,AVERAGE			\
+	 VDEF:ds2cur=ds2,LAST				\
+   	 AREA:ds2#00BF47:"Used memory  \t"              \
+	 GPRINT:ds2cur:"Cur\: %3.2lf%S\t"		\
+	 GPRINT:ds2avg:"Avg\: %3.2lf%S\t"		\
+	 GPRINT:ds2max:"Max\: %3.2lf%S\l"	 	\
+							\
+	 VDEF:ds0max=ds0,MAXIMUM			\
+	 VDEF:ds0avg=ds0,AVERAGE			\
+	 VDEF:ds0cur=ds0,LAST				\
+   	 AREA:ds0#00FF00:"Free memory \t"	        \
+	 GPRINT:ds0cur:"Cur\: %3.2lf%S\t"		\
+	 GPRINT:ds0avg:"Avg\: %3.2lf%S\t"		\
+	 GPRINT:ds0max:"Max\: %3.2lf%S\l"	 	\
+							\
+							\
+	 VDEF:ds1max=ds1,MAXIMUM			\
+	 VDEF:ds1avg=ds1,AVERAGE			\
+	 VDEF:ds1cur=ds1,LAST				\
+	 LINE1:ds1#FF0000:"Max memory  \t"             	\
+	 GPRINT:ds1cur:"Cur\: %3.2lf%S\t"		\
+	 GPRINT:ds1avg:"Avg\: %3.2lf%S\t"		\
+	 GPRINT:ds1max:"Max\: %3.2lf%S\l"	 	
+
+
+	
+

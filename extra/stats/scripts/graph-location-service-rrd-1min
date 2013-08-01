@@ -1,0 +1,74 @@
+#!/bin/sh
+
+# Installation directory
+base_dir=`realpath "$0"/../../../../`
+#echo base_dir=$base_dir
+
+# Input file
+in=$base_dir/extra/stats/rrd/location-service-1min.rrd
+# Output file with location service stats
+out_location_service=$base_dir/extra/stats/png/location-service.png
+# Output file with location service Java VM stats
+out_vm=$base_dir/extra/stats/png/location-service-vm.png
+
+rrdtool graph $out_location_service		        \
+	 --title "Location Service stats"		\
+	 --vertical-label "number"	        	\
+	 --alt-autoscale-max				\
+	 --lower-limit 0				\
+	 --base 1000					\
+	 --units-exponent 0				\
+	 --lower-limit=0				\
+	 --slope-mode					\
+							\
+	 DEF:ds0=$in:nBindings:AVERAGE			\
+							\
+	 VDEF:ds0max=ds0,MAXIMUM			\
+	 VDEF:ds0avg=ds0,AVERAGE			\
+	 VDEF:ds0cur=ds0,LAST				\
+   	 AREA:ds0#00FF00:"Num bindings\:    "		\
+	 GPRINT:ds0cur:"Cur\: %6.0lf\t"			\
+	 GPRINT:ds0avg:"Avg\: %6.0lf\t"			\
+	 GPRINT:ds0max:"Max\: %6.0lf\l"	 		\
+							\
+
+rrdtool graph $out_vm                                   \
+         --title "Location Service Java VM memory stats"       \
+         --vertical-label "memory stats"                \
+         --alt-autoscale-max                            \
+         --lower-limit 0                                \
+         --base 1024                                    \
+         --slope-mode                                   \
+							\
+	 DEF:ds0=$in:vm_freememory:AVERAGE           	\
+         DEF:ds1=$in:vm_maxmemory:AVERAGE            	\
+         DEF:ds2=$in:vm_totalmemory:AVERAGE          	\
+							\
+	 VDEF:ds2max=ds2,MAXIMUM			\
+	 VDEF:ds2avg=ds2,AVERAGE			\
+	 VDEF:ds2cur=ds2,LAST				\
+   	 AREA:ds2#00BF47:"Used memory  \t"              \
+	 GPRINT:ds2cur:"Cur\: %3.2lf%S\t"		\
+	 GPRINT:ds2avg:"Avg\: %3.2lf%S\t"		\
+	 GPRINT:ds2max:"Max\: %3.2lf%S\l"	 	\
+							\
+	 VDEF:ds0max=ds0,MAXIMUM			\
+	 VDEF:ds0avg=ds0,AVERAGE			\
+	 VDEF:ds0cur=ds0,LAST				\
+   	 AREA:ds0#00FF00:"Free memory \t" 	        \
+	 GPRINT:ds0cur:"Cur\: %3.2lf%S\t"		\
+	 GPRINT:ds0avg:"Avg\: %3.2lf%S\t"		\
+	 GPRINT:ds0max:"Max\: %3.2lf%S\l"	 	\
+							\
+							\
+	 VDEF:ds1max=ds1,MAXIMUM			\
+	 VDEF:ds1avg=ds1,AVERAGE			\
+	 VDEF:ds1cur=ds1,LAST				\
+	 LINE1:ds1#FF0000:"Max memory  \t"             	\
+	 GPRINT:ds1cur:"Cur\: %3.2lf%S\t"		\
+	 GPRINT:ds1avg:"Avg\: %3.2lf%S\t"		\
+	 GPRINT:ds1max:"Max\: %3.2lf%S\l"	 	
+
+
+	
+

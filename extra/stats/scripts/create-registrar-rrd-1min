@@ -1,0 +1,33 @@
+#!/bin/sh
+
+# Installation directory
+base_dir=`realpath "$0"/../../../../`
+#echo base_dir=$base_dir
+
+# Output .rrd file
+out=$base_dir/extra/stats/rrd/registrar-1min.rrd
+#echo "Output filename: $out"
+
+rrdtool create $out 		    \
+--step 60 			    \
+DS:nIncReqs:COUNTER:120:U:U	    \
+DS:nResOK:COUNTER:120:U:U  	    \
+DS:nReqRej:COUNTER:120:U:U  	    \
+DS:nReqErrors:COUNTER:120:U:U  	    \
+DS:nAuthFails:COUNTER:120:U:U  	    \
+DS:nCancels:COUNTER:120:U:U  	    \
+DS:nCCancels:COUNTER:120:U:U  	    \
+DS:nQueries:COUNTER:120:U:U  	    \
+DS:nUpdates:COUNTER:120:U:U  	    \
+DS:nNotFound:COUNTER:120:U:U  	    \
+DS:vm_freememory:GAUGE:120:U:U 	    \
+DS:vm_maxmemory:GAUGE:120:U:U  	    \
+DS:vm_totalmemory:GAUGE:120:U:U	    \
+RRA:AVERAGE:0.5:1:1440		    \
+RRA:AVERAGE:0.5:30:336              \
+RRA:AVERAGE:0.5:120:372             \
+RRA:AVERAGE:0.5:1440:365            \
+RRA:MAX:0.5:1:1440		    \
+RRA:MAX:0.5:30:336                  \
+RRA:MAX:0.5:120:372                 \
+RRA:MAX:0.5:1440:365            

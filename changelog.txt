@@ -1,0 +1,21 @@
+Version 0.0.4:
+
+ * Added new SNMP OIDs for services.
+ * Added sample scripts for gathering and rendering statistics.
+
+Version 0.0.3:
+
+ * Implemented stateless mode in proxy.
+ * Added experimental SNMP support.
+ * Added experimental management support from command-line.
+  
+Version 0.0.2:
+
+ * Updated startup scripts.
+ * Fixed incorrect binding lifetime sent from registrar.
+ * Project has broken up to two .jar files. One is for creating RMI clients, the other one contains service implementations.
+ * Ant build.xml file was introduced to help build the project.
+ 
+Version 0.0.1:
+ 
+ Initial draft release.

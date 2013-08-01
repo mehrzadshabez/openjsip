@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# Installation directory
+base_dir=`realpath "$0"/../../../../`
+#echo base_dir=$base_dir
+
+# Output .rrd file
+out=$base_dir/extra/stats/rrd/proxy-1min.rrd
+#echo "Output filename: $out"
+
+rrdtool update $out \
+-t nReqProc:nResProc:nReqNProc:nResNProc:nST:nCT:vm_freememory:vm_maxmemory:vm_totalmemory \
+N:`$base_dir/bin/cmdclient -rknc rmi://localhost:1099/Proxy get numRequestsProcessed numResponsesProcessed numRequestsNotProcessed numResponsesNotProcessed numServerTransactions numClientTransactions vm_freememory vm_maxmemory vm_totalmemory`

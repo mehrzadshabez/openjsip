@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<project name="openjsip" default="build.all" basedir=".">
+
+    <property name="javadoc.dir" value="${basedir}/docs/api"/>
+    <property name="output.dir" value="${basedir}/out"/> <!-- temporary classes are stored here -->
+    <property name="lib.dir" value="${basedir}/lib"/>
+    <property name="src.dir" value="${basedir}/src"/>
+    <property name="output.project.lib.file" value="${lib.dir}/openjsip.jar"/>
+    <property name="output.remote.lib.file" value="${lib.dir}/openjsip-remote.jar"/>
+
+    <!--============  P R O J E C T   L I B R A R I E S ============-->
+
+    <!-- JAIN-SIP Library -->
+    <path id="library.jainsip.classpath">
+        <fileset dir="${basedir}/lib">
+            <include name="**/jain*.jar"/>
+        </fileset>
+    </path>
+
+    <!-- LOG4J Library -->
+    <path id="library.log4j.classpath">
+        <fileset dir="${basedir}/lib">
+            <include name="**/log4j*.jar"/>
+        </fileset>
+    </path>
+
+    <!-- SNMP Library -->
+    <path id="library.snmp.classpath">
+        <fileset dir="${basedir}/lib">
+            <include name="**/snmp*.jar"/>
+        </fileset>
+    </path>
+
+    <!-- Remote interfaces library -->
+    <path id="library.remote.classpath">
+        <fileset dir="${basedir}/lib">
+            <include name="**/openjsip-remote*.jar"/>
+        </fileset>
+    </path>
+
+    <!-- All libraries together-->
+    <path id="project.libraries.classpath">
+        <path refid="library.jainsip.classpath"/>
+        <path refid="library.log4j.classpath"/>
+        <path refid="library.snmp.classpath"/>
+        <path refid="library.remote.classpath"/>
+    </path>
+
+    <!--============  T A R G E T S ============-->
+
+    <!-- Cleans output directory -->
+    <target name="clean.output.dir" description="Cleanup output dir (where temporary classes are stored)">
+        <delete dir="${output.dir}"/>
+    </target>
+
+    <!-- Cleans output directory and dist lib file -->
+    <target name="clean.all" depends="clean.output.dir" description="Cleanup All">
+        <delete file="${output.project.lib.file}"/>
+        <delete file="${output.remote.lib.file}"/>
+        <delete dir="${javadoc.dir}"/>
+    </target>
+
+    <!-- Builds JavaDocs -->
+    <target name="build.javadoc" description="Build API documentaion.">
+        <delete dir="${javadoc.dir}"/>
+        <javadoc sourcepath="${src.dir}" destdir="${javadoc.dir}" access="private"/>
+    </target>
+
+    <!-- Compiles project -->
+    <target name="compile.project.library" depends="clean.output.dir" description="Compile project library">
+        <mkdir dir="${output.dir}/project"/>
+        <javac compiler="modern" sourcepath="" srcdir="${src.dir}" destdir="${output.dir}/project" classpathref="project.libraries.classpath">
+            <exclude name="**/remote/**"/>
+        </javac>
+    </target>
+
+    <!-- Compiles remote interfaces -->
+    <target name="compile.remote.library" depends="clean.output.dir" description="Compile remote interfaces library">
+        <mkdir dir="${output.dir}/remote"/>
+        <javac compiler="modern" sourcepath="" srcdir="${src.dir}" destdir="${output.dir}/remote" classpathref="project.libraries.classpath">
+            <include name="**/remote/**"/>
+        </javac>
+    </target>
+
+    <!-- Makes library with remote interfaces -->
+    <target name="build.remote.library" depends="compile.remote.library" description="Make remote interfaces library">
+        <jar jarfile="${output.remote.lib.file}" basedir="${output.dir}/remote"/>
+    </target>
+
+    <!-- Makes project .jar file -->
+    <target name="build.project.library" depends="build.remote.library, clean.output.dir, compile.project.library" description="Make project library">
+        <jar jarfile="${output.project.lib.file}" basedir="${output.dir}/project"/>
+    </target>
+
+    <!-- Cleans, compiles and makes project lib dist file -->
+    <target name="build.all" depends="build.remote.library, build.project.library, build.javadoc" description="Build all including Java API docs.">
+         <delete dir="${output.dir}"/>
+    </target>
+
+
+</project>

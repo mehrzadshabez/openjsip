@@ -1,0 +1,191 @@
+#!/bin/sh
+
+# Installation directory
+base_dir=`realpath "$0"/../../`
+#echo base_dir=$base_dir
+
+# Directory for pids
+pid_dir="$base_dir/bin"
+
+# Libraries dir
+lib_dir="$base_dir/lib"
+
+CLASSPATH=""
+
+#add jars in lib directory to classpath
+for file in "$lib_dir"/*.jar;
+do
+	CLASSPATH="$CLASSPATH:$file"
+done
+
+JAIN_SIP_API_LIB=`ls $lib_dir/jain-sip-api*.jar`
+OPENJSIP_REMOTE_LIB=`ls $lib_dir/openjsip-remote*.jar`
+
+#echo CLASSPATH=$CLASSPATH
+#echo JAIN_SIP_API_LIB=$JAIN_SIP_API_LIB
+#echo OPENJSIP_REMOTE_LIB=$OPENJSIP_REMOTE_LIB
+
+usage() 
+{
+cat >&2 <<'-END-'
+openjsip <command> <service>
+ where <command> is one of:
+    start         - start the service
+    restart       - restart the service
+    stop          - stop the service
+    list          - list current status
+
+ where <service> is one of:
+    location-service  - SIP Location Service
+    registrar         - SIP Registrar
+    proxy             - SIP Proxy
+    all               - All SIP services
+
+-END-
+	exit 1
+}
+
+get_pid_file()
+{
+	case "$1" in
+
+		location-service) echo "$pid_dir/location-service.pid";;
+	
+		registrar) echo "$pid_dir/registrar.pid";;
+
+		proxy) echo "$pid_dir/proxy.pid";;
+
+		*) echo "/dev/null";;
+
+	esac
+}
+
+get_service_name()
+{
+	case "$1" in
+
+		location-service) echo "Location Service";;
+	
+		registrar) echo "Registrar";;
+
+		proxy) echo "Proxy";;
+
+	esac
+}
+
+is_service_running()
+{	
+	if [ -f $pid_file ]
+	then
+		if ps `cat $pid_file` > /dev/null
+		then 
+			return 0
+		else
+			return 1
+		fi
+	fi
+			
+	return 1;
+}
+
+echo_service_status()
+{
+	if is_service_running $1
+	then
+		echo "`get_service_name $1` is running"		
+	else
+		echo "`get_service_name $1` is not running"
+	fi
+}
+
+service_start() 
+{
+	if ! is_service_running $1
+	then
+		echo "Starting `get_service_name $1`..." >&2
+ 		
+		case "$1" in
+			location-service) 
+	 		        java -cp $CLASSPATH -Djava.security.policy=policy/policy.all -Djava.rmi.server.codebase="file://$OPENJSIP_REMOTE_LIB file://$JAIN_SIP_API_LIB" openjsip.locationservice.LocationService conf/location-service.properties <&- &;;
+
+			registrar)
+				    java -cp $CLASSPATH -Djava.security.policy=policy/policy.all -Djava.rmi.server.codebase="file://$OPENJSIP_REMOTE_LIB file://$JAIN_SIP_API_LIB" openjsip.registrar.Registrar conf/registrar.properties <&- &;;
+
+			proxy)
+	            	java -cp $CLASSPATH -Djava.security.policy=policy/policy.all -Djava.rmi.server.codebase="file://$OPENJSIP_REMOTE_LIB file://$JAIN_SIP_API_LIB" openjsip.proxy.Proxy conf/proxy.properties <&- &;;
+		esac
+
+        #>> logs/location-service_console.log &
+        	echo $! > $pid_file
+	else
+		echo "`get_service_name $1` is already running..." >&2
+	fi
+
+}
+
+service_stop() 
+{
+	if is_service_running $1
+	then
+		echo "Stopping `get_service_name $1`..." >&2
+		kill `cat $pid_file`
+	else
+		echo "`get_service_name $1` is not running..." >&2
+	fi
+
+	rm -f $pid_file
+}
+
+
+run()
+{
+	cd $base_dir
+	pid_file=`get_pid_file $2`
+	#echo $pid_file	
+
+	case "$1" in
+
+		start)  service_start $2;;
+		stop)   service_stop $2;;
+		restart)
+			if is_service_running $2
+			then
+				service_stop $2
+				sleep 1
+			fi
+
+			service_start $2;
+			;;
+
+	    list)  echo_service_status $2;;
+		*)     usage ;;
+	esac
+}
+
+
+## ENTRY POINT ##
+
+if [ -z $1 ] || [ -z $2 ]
+then 
+	usage
+	exit 1
+fi
+
+case "$2" in
+
+	location-service)		run $1 $2;;
+	registrar)			run $1 $2;;
+	proxy)				run $1 $2;;
+	all)
+			         	run $1 location-service
+				        sleep 1
+				        run $1 registrar
+				        sleep 1
+				        run $1 proxy
+				        ;;
+
+	*)			        usage;;
+
+esac
+
+
