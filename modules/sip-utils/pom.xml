@@ -11,18 +11,12 @@
         <relativePath>../../</relativePath>
     </parent>
 
-    <name>OpenJSIP - Location Service Implementation</name>
+    <name>OpenJSIP - SIP Utilities</name>
 
-    <artifactId>location-service-impl</artifactId>
+    <artifactId>sip-utils</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>location-service-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <dependency>
             <groupId>javax.sip</groupId>
             <artifactId>jain-sip-api</artifactId>
@@ -34,12 +28,6 @@
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-        </dependency>
-
-        <!-- Get rid off -->
-        <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
         </dependency>
     </dependencies>
 

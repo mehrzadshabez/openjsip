@@ -19,9 +19,13 @@
 
 package openjsip.locationservice
 
-import javax.sip.header.ContactHeader
+import gov.nist.javax.sip.address.SipUri
+import javax.sip.header.{ToHeader, ContactHeader}
+import javax.sip.address.{Address, URI}
+import javax.sip.message.Request
+import openjsip.SipUtils
 
-trait LocationServiceInterface {
+trait LocationService {
 
   /**
    * @param key Key to location service directory
@@ -95,4 +99,43 @@ trait LocationServiceInterface {
    * @return Default domain
    */
   def getDefaultDomain: String
+
+  /**
+   * @param uri URI to make key value from.
+   * @return The key value to use with location service database. Key is needed to find current location of subscriber by <i>uri</i>. Returns null if <i>uri</i> is not SIP URI like.
+   */
+  def getKeyToLocationService(uri: URI): String = {
+
+    val canonicalizedUri: URI = SipUtils.getCanonicalizedURI(uri)
+
+    if (canonicalizedUri.isSipURI) {
+      val sipUri: SipUri = canonicalizedUri.asInstanceOf[SipUri]
+      sipUri.clearPassword()
+      sipUri.removePort()
+      sipUri.clearQheaders()
+      sipUri.toString
+    } else {
+      null
+    }
+  }
+
+  /**
+   * @param request Original request
+   * @return The key value to use with location service database. Key is needed to find current location of subscriber specified in To header of <i>request</i>. Returns null if To header is not SIP URI like.
+   */
+  def getKeyToLocationService(request: Request): String = {
+    val toHeader: ToHeader = request.getHeader(ToHeader.NAME).asInstanceOf[ToHeader]
+    if (toHeader != null) {
+      val address: Address = toHeader.getAddress
+
+      /**
+       * The To header field and the Request-URI field typically differ, as
+       * the former contains a user name.  This address-of-record MUST
+       * be a SIP URI or SIPS URI.
+       */
+      return getKeyToLocationService(address.getURI)
+    }
+
+    null
+  }
 }
