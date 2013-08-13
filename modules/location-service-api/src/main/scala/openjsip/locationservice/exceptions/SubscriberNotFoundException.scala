@@ -17,6 +17,8 @@
  * Copyright (c) 2013 - Ievgen Krapyva
  */
 
-package openjsip.locationservice
+package openjsip.locationservice.exceptions
 
-class UserNotFoundException(key: String) extends Exception("Subscriber " + key + " not found.")
+import openjsip.locationservice.LocationServiceKey
+
+class SubscriberNotFoundException(key: LocationServiceKey) extends RuntimeException("Subscriber " + key + " not found.")

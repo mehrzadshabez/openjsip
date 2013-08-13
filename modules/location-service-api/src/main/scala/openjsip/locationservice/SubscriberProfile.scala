@@ -31,7 +31,7 @@ import openjsip.SipUtils
  *                        registrations.  An AOR is frequently thought of as the "public
  *                        address" of the user.
  */
-class UserProfile(addressOfRecord: SipURI) {
+class SubscriberProfile(addressOfRecord: SipURI) {
 
   /**
    * The list of bindings of this subscriber.

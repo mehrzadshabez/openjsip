@@ -28,7 +28,7 @@ import javax.sip.header.ContactHeader
  * @param cseq CSeq value of REGISTER request
  * @param expiresTimeSec Time in seconds when this binding will expire.
  */
-class Binding(val key: String, val contactHeader: ContactHeader, val callId: String, val cseq: Long, expiresTimeSec: Long) {
+class Binding(val key: LocationServiceKey, val contactHeader: ContactHeader, val callId: String, val cseq: Long, expiresTimeSec: Long) {
 
   expiresTime = expiresTimeSec.toInt
 
