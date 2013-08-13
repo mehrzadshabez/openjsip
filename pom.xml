@@ -12,7 +12,7 @@
     <name>OpenJSIP - Parent</name>
 
     <modules>
-        <module>modules/location-service</module>
+        <module>modules/location-service-impl</module>
         <module>modules/location-service-api</module>
         <module>modules/sip-utils</module>
         <module>modules/subscriber-database-api</module>
